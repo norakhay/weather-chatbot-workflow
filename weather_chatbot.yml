@@ -1,0 +1,284 @@
+app:
+  description: 'You are a weather chatbot. Follow these steps in order for every message.
+    Reply in the same language as the user (English or Arabic).
+
+
+    User message:
+
+    {{sys.query}}
+
+
+    STEP 1 — Understand the message
+
+    - Greeting only (hi, hello, مرحبا, السلام عليكم): go to STEP 2.
+
+    - Not about weather (news, law, code, sports, etc.): go to STEP 3.
+
+    - About weather but no city: go to STEP 4.
+
+    - About weather with a city: go to STEP 5.
+
+
+    STEP 2 — Greeting
+
+    Greet briefly and ask them to name a city. Stop.
+
+
+    STEP 3 — Out of scope
+
+    Say you only answer weather questions for a named city. Stop. Do not answer the
+    off-topic question.
+
+
+    STEP 4 — Missing city
+
+    Ask for the city. Do not invent a location or any weather numbers. Stop.
+
+
+    STEP 5 — Weather answer
+
+    - City = the place they named. when = today, tomorrow, or this week (default today).
+
+    - Answer in 4–8 short lines: city, period, conditions, temperature in °C, wind,
+    rain.
+
+    - If you have no live weather data in this run, say live numbers are unavailable
+    and do not invent temperatures, wind, or rain.
+
+    - No legal, medical, or off-topic advice.
+
+
+    Always do exactly one of STEP 2, 3, 4, or 5. Never skip STEP 1.'
+  icon: sunrise
+  icon_background: '#FEF7C3'
+  mode: advanced-chat
+  name: weather_chatbot
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: package
+  value:
+    plugin_unique_identifier: agrid/vllm:0.1.5@db5680771e46a9b3425dd8c2e5fa1d782edcdd959c795ba24c63ca0cdc78d539
+kind: app
+version: 0.3.1
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 25
+        batch_count_limit: 10
+        file_size_limit: 5
+        image_file_size_limit: 10
+        video_file_size_limit: 50
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        sourceType: llm
+        targetType: answer
+      id: llm-answer
+      source: llm
+      sourceHandle: source
+      target: answer
+      targetHandle: target
+      type: custom
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: knowledge-retrieval
+      id: 1768209353663-source-1768209360646-target
+      source: '1768209353663'
+      sourceHandle: source
+      target: '1768209360646'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1768209360646-source-llm-target
+      source: '1768209360646'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: Start
+        type: start
+        variables: []
+        version: '1'
+      height: 62
+      id: '1768209353663'
+      position:
+        x: 201
+        y: 61
+      positionAbsolute:
+        x: 201
+        y: 61
+      selected: false
+      sourcePosition: bottom
+      targetPosition: top
+      type: custom
+      width: 225
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1768209360646'
+          - result
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}{{#1768209360646.result#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: LLM-S
+          provider: agrid/vllm/vllm
+        prompt_template:
+        - id: a21af94e-a69d-41a2-ab8c-6beae122a73f
+          role: system
+          text: "You are a concise website support & sales assistant.\nYour answers\
+            \ must be:\n- Short\n- Clear\n- Directly helpful\n- Friendly but professional\n\
+            \nRules:\n• Answer only the question asked\n• Keep most responses under\
+            \ 4–5 sentences\n• When relevant, naturally suggest appropriate services/products/solutions\
+            \ and explain the value in practical terms\n• Never be pushy or use hard-sell\
+            \ phrases\n• Use simple language\n• If you don't know something → say\
+            \ so briefly and offer realistic next steps\n\nProactive behavior (important):\n\
+            • Do NOT ask generic follow-up questions like:\n  - Would you like to\
+            \ know more about our Legal AI Solutions package or discuss your specific\
+            \ needs?\n  - Would you please let me know if you'd prefer the link sent\
+            \ via email or if you'd like to browse directly?\n• Instead: provide the\
+            \ most relevant information immediately, including key points, steps,\
+            \ options, pricing/requirements if known, and the best next action.\n\
+            • If you mention a resource, include the link directly in the chat (do\
+            \ not ask how to send it).\n\nGoal: Help the user quickly + create positive\
+            \ impression of the company\n"
+        selected: false
+        title: LLM
+        type: llm
+        variables: []
+        version: '1'
+        vision:
+          enabled: false
+      height: 109
+      id: llm
+      position:
+        x: 201
+        y: 328.5
+      positionAbsolute:
+        x: 201
+        y: 328.5
+      selected: true
+      sourcePosition: bottom
+      targetPosition: top
+      type: custom
+      width: 225
+    - data:
+        answer: '{{#llm.text#}}'
+        desc: ''
+        selected: false
+        title: Answer
+        type: answer
+        variables: []
+        version: '1'
+      height: 109
+      id: answer
+      position:
+        x: 201
+        y: 497.5
+      positionAbsolute:
+        x: 201
+        y: 497.5
+      selected: false
+      sourcePosition: bottom
+      targetPosition: top
+      type: custom
+      width: 225
+    - data:
+        dataset_ids:
+        - 3d41fdc4-caef-4a0a-b8d4-1a1602351d03
+        desc: ''
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: reranking_model
+          reranking_model:
+            model: pronoai-reranker
+            provider: langgenius/openai_api_compatible/openai_api_compatible
+          top_k: 4
+        query_variable_selector:
+        - '1768209353663'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: Knowledge Retrieval
+        type: knowledge-retrieval
+        version: '1'
+        vision:
+          enabled: false
+      height: 100
+      id: '1768209360646'
+      position:
+        x: 200
+        y: 183
+      positionAbsolute:
+        x: 200
+        y: 183
+      selected: false
+      sourcePosition: bottom
+      targetPosition: top
+      type: custom
+      width: 225
+    viewport:
+      x: 598.5898169716226
+      y: -26.926493993088798
+      zoom: 0.9309276342567698
